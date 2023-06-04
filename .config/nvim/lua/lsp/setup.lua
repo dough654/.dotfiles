@@ -130,7 +130,7 @@ lspconfig.vuels.setup({
 lspconfig.rust_analyzer.setup({
   capabilities = capabilities,
   handlers = handlers,
-  on_attach = on_attach
+  on_attach = on_attach,
   settings = {
     ["rust_analyzer"] = {
       checkOnSave = {

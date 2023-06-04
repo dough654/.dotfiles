@@ -83,6 +83,11 @@ require("nvim-tree").setup({
 			error = "",
 		},
 	},
+  git = {
+    enable = true,
+    ignore = false,
+    timeout = 500,
+  },
 	renderer = {
 		group_empty = true,
 		highlight_git = true,
@@ -109,6 +114,7 @@ require("nvim-tree").setup({
 			},
 		},
 	},
+  update_cwd = true,
 	-- update the focused file on `BufEnter`, un-collapses the folders recursively until it finds the file
 	update_focused_file = {
 		-- enables the feature
@@ -118,6 +124,7 @@ require("nvim-tree").setup({
 		update_root = true,
 		-- list of buffer names / filetypes that will not update the cwd if the file isn't found under the current root directory
 		-- only relevant when `update_focused_file.update_cwd` is true and `update_focused_file.enable` is true
+    update_cwd = true,
 		ignore_list = {},
 	},
 	-- configuration options for the system open command (`s` in the tree by default)
@@ -135,7 +142,7 @@ require("nvim-tree").setup({
 		open_file = {
 			quit_on_open = false,
 			-- if true the tree will resize itself after opening a file
-			resize_window = false,
+			resize_window = true,
 			window_picker = {
 				enable = true,
 				chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
