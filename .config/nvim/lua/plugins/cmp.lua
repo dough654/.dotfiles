@@ -41,6 +41,10 @@ local function limit_lsp_types(entry, ctx)
   local char_before_cursor = string.sub(line, col - 1, col - 1)
   local char_after_dot = string.sub(line, col, col)
 
+  if (kind == require("cmp").lsp.CompletionItemKind.Text) then
+    return false
+  end
+
   if char_before_cursor == "." and char_after_dot:match("[a-zA-Z]") then
     if
         kind == types.lsp.CompletionItemKind.Method
@@ -241,14 +245,17 @@ cmp.setup({
       name = "nvim_lsp",
       priority = 10,
       -- Limits LSP results to specific types based on line context (FIelds, Methods, Variables)
-      entry_filter = limit_lsp_types,
+      entry_filter = 
+        function(entry, ctx)
+          return require("cmp").lsp.CompletionItemKind.Text ~= entry:get_kind()
+        end
     },
     { name = "npm",         priority = 9 },
-    { name = "codeium",     priority = 9 },
+    -- { name = "codeium",     priority = 9 },
     { name = "copilot",     priority = 9 },
     { name = "cmp_tabnine", priority = 7, max_num_results = 3 },
     { name = "luasnip",     priority = 7, max_item_count = 5 },
-    { name = "buffer",      priority = 7, keyword_length = 5, option = buffer_option, max_item_count = 5 },
+    -- { name = "buffer",      priority = 7, keyword_length = 5, option = buffer_option, max_item_count = 5 },
     { name = "nvim_lua",    priority = 5 },
     { name = "path",        priority = 4 },
     { name = "calc",        priority = 3 },

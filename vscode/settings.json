@@ -1,0 +1,118 @@
+{
+    "workbench.colorCustomizations": {
+        "terminal.background": "#282C34",
+        "terminal.foreground": "#ABB2BF",
+        "terminalCursor.background": "#ABB2BF",
+        "terminalCursor.foreground": "#ABB2BF",
+        "terminal.ansiBlack": "#282C34",
+        "terminal.ansiBlue": "#61AFEF",
+        "terminal.ansiBrightBlack": "#545862",
+        "terminal.ansiBrightBlue": "#61AFEF",
+        "terminal.ansiBrightCyan": "#56B6C2",
+        "terminal.ansiBrightGreen": "#98C379",
+        "terminal.ansiBrightMagenta": "#C678DD",
+        "terminal.ansiBrightRed": "#E06C75",
+        "terminal.ansiBrightWhite": "#C8CCD4",
+        "terminal.ansiBrightYellow": "#E5C07B",
+        "terminal.ansiCyan": "#56B6C2",
+        "terminal.ansiGreen": "#98C379",
+        "terminal.ansiMagenta": "#C678DD",
+        "terminal.ansiRed": "#E06C75",
+        "terminal.ansiWhite": "#ABB2BF",
+        "terminal.ansiYellow": "#E5C07B",
+        "statusBar.background": "#5f0000",
+        "statusBar.noFolderBackground": "#5f0000",
+        "statusBar.debuggingBackground": "#5f0000"
+    },
+    "workbench.iconTheme": "vscode-icons",
+    "yaml.schemas": {
+        "file:///home/doug/.vscode-server/extensions/atlassian.atlascode-3.0.3/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml"
+    },
+    "vim.overrideCopy": false,
+    "vim.useCtrlKeys": true,
+    "atlascode.jira.jqlList": [
+        {
+            "enabled": true,
+            "id": "c43bd26b-22f6-4dc4-821b-66d9f504ac0d",
+            "monitor": true,
+            "name": "My nrt-trial Issues",
+            "query": "assignee = currentUser() ORDER BY lastViewed DESC ",
+            "siteId": "3a706296-8266-4a42-8a5b-fca4b15657e4"
+        },
+        {
+            "enabled": true,
+            "id": "8951f252-303e-4808-8525-cb5c6b0adf47",
+            "monitor": true,
+            "name": "My Active Issues",
+            "query": "assignee = currentUser() AND (status = \"To Do\" OR status = \"In Progress\" ) ORDER BY lastViewed DESC ",
+            "siteId": "3a706296-8266-4a42-8a5b-fca4b15657e4"
+        }
+    ],
+    "elm.disableLinting": true,
+    "[elm]": {
+        "editor.formatOnSave": true,
+        "editor.formatOnSaveTimeout": 3000,
+        "editor.defaultFormatter": "elmTooling.elm-ls-vscode"
+    },
+    "atlascode.jira.lastCreateSiteAndProject": {
+        "siteId": "3a706296-8266-4a42-8a5b-fca4b15657e4",
+        "projectKey": "LC"
+    },
+    "cucumberautocomplete.steps": [
+        "apps/lc-agent-app-e3e/src/step_definitions/**/*.ts",
+        "apps/lc-admin-app-e2e/src/step_definitions/**/*.ts",
+        "apps/lc-photo-app-e2e/src/step_definitions/**/*.ts",
+        "apps/lc-coordinator-app-e2e/src/step_definitions/**/*.ts",
+        "e2e/step_definitions/**/*.ts"
+    ],
+    "workbench.colorTheme": "One Dark Pro",
+    "clojureVSCode.showResultInline": true,
+    "vim.easymotion": true,
+    "vim.normalModeKeyBindings": [
+        {
+            "after": [
+                "<leader>",
+                "<leader>",
+                "w"
+            ],
+            "before": [
+                "<leader>",
+                "f"
+            ]
+        },
+        {
+            "after": [
+                "<leader>",
+                "<leader>",
+                "b"
+            ],
+            "before": [
+                "<leader>",
+                "F"
+            ]
+        }
+    ],
+    "vim.easymotionMarkerFontFamily": "MesloLGS NF",
+    "vim.easymotionMarkerFontSize": "18",
+    "keyboard.dispatch": "keyCode",
+    "redhat.telemetry.enabled": false,
+    "hediet.vscode-drawio.local-storage": "eyIuZHJhd2lvLWNvbmZpZyI6IntcImxhbmd1YWdlXCI6XCJcIixcImN1c3RvbUZvbnRzXCI6W10sXCJsaWJyYXJpZXNcIjpcImdlbmVyYWxcIixcImN1c3RvbUxpYnJhcmllc1wiOltcIkwuc2NyYXRjaHBhZFwiXSxcInBsdWdpbnNcIjpbXSxcInJlY2VudENvbG9yc1wiOltdLFwiZm9ybWF0V2lkdGhcIjpcIjI0MFwiLFwiY3JlYXRlVGFyZ2V0XCI6ZmFsc2UsXCJwYWdlRm9ybWF0XCI6e1wieFwiOjAsXCJ5XCI6MCxcIndpZHRoXCI6MTEwMCxcImhlaWdodFwiOjg1MH0sXCJzZWFyY2hcIjp0cnVlLFwic2hvd1N0YXJ0U2NyZWVuXCI6dHJ1ZSxcImdyaWRDb2xvclwiOlwiI2QwZDBkMFwiLFwiZGFya0dyaWRDb2xvclwiOlwiIzZlNmU2ZVwiLFwiYXV0b3NhdmVcIjp0cnVlLFwicmVzaXplSW1hZ2VzXCI6bnVsbCxcIm9wZW5Db3VudGVyXCI6MCxcInZlcnNpb25cIjoxOCxcInVuaXRcIjoxLFwiaXNSdWxlck9uXCI6ZmFsc2UsXCJ1aVwiOlwiXCJ9In0=",
+    "[typescript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "css.lint.unknownAtRules": "ignore",
+    "editor.inlineSuggest.enabled": true,
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "editor.lineNumbers": "relative",
+    "vim.statusBarColorControl": false,
+    "vim.statusBarColors.visualline": "#765d2f",
+    "prettier.semi": false
+}
