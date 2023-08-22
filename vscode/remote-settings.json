@@ -1,11 +1,9 @@
 {
     "remote.autoForwardPortsSource": "output",
     "terminal.integrated.profiles.linux": {
-        "zsh": {
-            "path":"/usr/bin/zsh",
-            "icon": "terminal-bash",
-            "args": ["-c", "/home/doug/.dotfiles/scripts/dev-session-no-nvim.sh"],
-            "color": "terminal.ansiMagenta"
-        },
-    }
+        "Custom Init": {
+            "path": "/home/doug/.dotfiles/scripts/dev-session-no-nvim.sh"
+        }
+    },
+    "terminal.integrated.defaultProfile.linux": "Custom Init"
 }

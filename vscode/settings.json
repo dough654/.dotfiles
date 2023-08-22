@@ -114,5 +114,11 @@
     "editor.lineNumbers": "relative",
     "vim.statusBarColorControl": false,
     "vim.statusBarColors.visualline": "#765d2f",
-    "prettier.semi": false
+    "prettier.semi": false,
+    "terminal.integrated.profiles.linux": {
+        "Custom Init": {
+            "path": "/home/doug/.dotfiles/scripts/dev-session-no-nvim.sh"
+        }
+    },
+    "terminal.integrated.defaultProfile.linux": "Custom Init"
 }
