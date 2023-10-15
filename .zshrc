@@ -1,25 +1,46 @@
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
-alias vim="nvim"
-alias vi="nvim"
-
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
 export ZSH="/home/doug/.oh-my-zsh"
+# Load some env variables from my .env file
+# This keeps secrets out of my .dotfiles repo
+set -o allexport; source .env; set +o allexport
+# Set name of the theme to load --- if set to "random", it will
 
-export PATH=$PATH:/usr/local/go/bin:~/.emacs.d/bin
 
-export AWS_PROFILE=doug
+# load a random theme each time oh-my-zsh is loaded, in which case,
+# to know which specific one was loaded, run: echo $RANDOM_THEME
+# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
+ZSH_THEME="robbyrussell"
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+function start-ticket {
+	node ~/dev/lc/setup/start-ticket.js "$@"
+}
+
+function open-ticket {
+	node ~/dev/lc/setup/open-ticket.js "$@"
+}
+
+function aws-role {
+	aws-vault exec "$@" --no-session
+}
+
+function aws-login {
+	aws sso login --profile rbi.ctg
+}
+
+function aws-dev {
+	aws-assume-role rbi.dev.admin
+}
+
+function aws-go {
+	aws-login && aws-dev
+}
+
+function weather {
+	curl http://wttr.in
+}
 
 function die {
 	killall -s KILL "$@"
@@ -29,19 +50,31 @@ function port {
 	lsof -i ":$@"
 }
 
-setxkbmap -option caps:swapescape
+function dev-session {
+	sh ~/.dotfiles/scripts/dev-session-no-nvim.sh $(pwd)
+}
 
-# Set name of the theme to load --- if set to "random", it will
-# load a random theme each time oh-my-zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-# ZSH_THEME="powerlevel10k"
+function dev {
+	sh ~/.dotfiles/scripts/dev-session-nvim.sh $(pwd)
+}
+
+function tmuxs {
+	if tmux attach-session -d -t "scratch"; then
+        	echo "Attached to existing session"
+	else
+		echo "Creating new session called scratch"
+		tmux new -s "scratch" -d
+	fi
+	
+}
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
-# a theme from this variable instead of looking in ~/.oh-my-zsh/themes/
+# a theme from this variable instead of looking in $ZSH/themes/
 # If set to an empty array, this variable will have no effect.
 # ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
+
+ZSH_THEME="af-magic"
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -60,7 +93,7 @@ setxkbmap -option caps:swapescape
 # export UPDATE_ZSH_DAYS=13
 
 # Uncomment the following line if pasting URLs and other text is messed up.
-# DISABLE_MAGIC_FUNCTIONS=true
+# DISABLE_MAGIC_FUNCTIONS="true"
 
 # Uncomment the following line to disable colors in ls.
 # DISABLE_LS_COLORS="true"
@@ -72,6 +105,8 @@ setxkbmap -option caps:swapescape
 # ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
+# Caution: this setting can cause issues with multiline prompts (zsh 5.7.1 and newer seem to work)
+# See https://github.com/ohmyzsh/ohmyzsh/issues/5765
 # COMPLETION_WAITING_DOTS="true"
 
 # Uncomment the following line if you want to disable marking untracked files
@@ -91,13 +126,16 @@ setxkbmap -option caps:swapescape
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
 # Which plugins would you like to load?
-# Standard plugins can be found in ~/.oh-my-zsh/plugins/*
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
+# Standard plugins can be found in $ZSH/plugins/
+# Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git zsh-syntax-highlighting)
+#plugins=(git)
 
 source $ZSH/oh-my-zsh.sh
+source $HOME/zsh-plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source $HOME/zsh-plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source $HOME/zsh-plugins/zsh-vim-mode/zsh-vim-mode.plugin.zsh
 
 # User configuration
 
@@ -124,8 +162,66 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-source ~/powerlevel10k/powerlevel10k.zsh-theme
+#
+#
+bindkey -v
+plugins=(
+	git
+	zsh-autosuggestions
+	zsh-syntax-highlighting
+	zsh-vim-mode
+	)
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# tabtab source for serverless package
+# uninstall by removing these lines or running `tabtab uninstall serverless`
+[[ -f /home/doug/dev/test/backend/node_modules/tabtab/.completions/serverless.zsh ]] && . /home/doug/dev/test/backend/node_modules/tabtab/.completions/serverless.zsh
+# tabtab source for sls package
+# uninstall by removing these lines or running `tabtab uninstall sls`
+[[ -f /home/doug/dev/test/backend/node_modules/tabtab/.completions/sls.zsh ]] && . /home/doug/dev/test/backend/node_modules/tabtab/.completions/sls.zsh
+# tabtab source for slss package
+# uninstall by removing these lines or running `tabtab uninstall slss`
+[[ -f /home/doug/dev/test/backend/node_modules/tabtab/.completions/slss.zsh ]] && . /home/doug/dev/test/backend/node_modules/tabtab/.completions/slss.zsh
+export PATH="/home/linuxbrew/.linuxbrew/opt/openjdk@8/bin:$PATH"
+
+# RBI AWS SSO Helpers
+export PATH=${PATH}:/home/doug/dev/rbi/ctg-devops/scripts/aws-sso
+source /home/doug/dev/rbi/ctg-devops/scripts/aws-sso/aws-functions
+
+
+# RBI AWS SSO Helpers
+export PATH=${PATH}:/home/doug/dev/rbi/test/ctg-devops/scripts/aws-sso
+source /home/doug/dev/rbi/test/ctg-devops/scripts/aws-sso/aws-functions
+
+# Homebrew
+export PATH=${PATH}:/home/linuxbrew/.linuxbrew/bin:/home/doug/.local/bin
+
+#Golang
+export PATH=$PATH:/usr/local/go/bin
+export GOBIN=/home/doug/.go/bin
+export PATH=$PATH:$GOBIN
+
+# Turso
+export PATH="/home/doug/.turso:$PATH"
+
+[ -f "/home/doug/.ghcup/env" ] && source "/home/doug/.ghcup/env" # ghcup-env
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/home/doug/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/home/doug/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "/home/doug/miniconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/home/doug/miniconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+
 
