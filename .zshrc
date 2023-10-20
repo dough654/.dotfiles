@@ -5,9 +5,11 @@
 export ZSH="/home/doug/.oh-my-zsh"
 # Load some env variables from my .env file
 # This keeps secrets out of my .dotfiles repo
-set -o allexport; source .env; set +o allexport
+set -o allexport; source ~/.env; set +o allexport
 # Set name of the theme to load --- if set to "random", it will
 
+# Set up ocaml opam init so tools are available in path
+eval `opam config env`
 
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
@@ -203,6 +205,8 @@ export PATH=${PATH}:/home/linuxbrew/.linuxbrew/bin:/home/doug/.local/bin
 export PATH=$PATH:/usr/local/go/bin
 export GOBIN=/home/doug/.go/bin
 export PATH=$PATH:$GOBIN
+export PATH=$PATH:/home/doug/.dotnet
+export PATH=$PATH:/home/doug/.dotnet/tools
 
 # Turso
 export PATH="/home/doug/.turso:$PATH"
