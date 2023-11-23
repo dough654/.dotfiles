@@ -47,10 +47,23 @@ vim.o.termguicolors = true
 vim.o.foldenable = true
 vim.o.foldmethod = "expr"
 vim.o.foldexpr = "nvim_treesitter#foldexpr()"
-vim.o.foldlevelstart = 0
+vim.o.foldlevelstart = 99
+
+-- spaces not tabs
+vim.o.tabstop = 4
+vim.o.expandtab = true
+vim.o.softtabstop = 4
+vim.o.shiftwidth = 4
 
 vim.o.showtabline = 2
 vim.g.copilot_assume_mapped = true
+vim.lsp.set_log_level("off")
+vim.diagnostic.config({
+  virtual_text = false, -- This disables virtual text
+  -- Other options can be set here
+})
+vim.g["fsharp#show_signature_on_cursor_move"] = 1
+vim.g["fsharp#workspace_mode_peek_deep_level"] = 4
 
 -- Install package manager
 --    https://github.com/folke/lazy.nvim
@@ -73,12 +86,26 @@ vim.opt.rtp:prepend(lazypath)
 --
 --  You can also configure plugins after the setup call,
 --    as they will be available in your neovim runtime.
+--
+--
+
 require('lazy').setup({
   -- NOTE: First, some plugins that don't require any configuration
 
   -- Git related plugins
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
+
+  -- Handlebars
+  'mustache/vim-mustache-handlebars',
+
+  -- Auto close brackets
+  {
+    'm4xshen/autoclose.nvim',
+    config = function()
+      require('autoclose').setup()
+    end
+  },
 
   -- Illuminate (highlits the word under the cursor)
   'RRethy/vim-illuminate',
@@ -92,21 +119,55 @@ require('lazy').setup({
     end
   },
 
-  -- Copilot
+  -- FSharp Ionide
+  { "ionide/Ionide-vim" },
+
+  -- Test Explorer
   {
-    "zbirenbaum/copilot.lua",
-    cmd = "Copilot",
-    event = "InsertEnter",
+    'klen/nvim-test',
     config = function()
-      require("copilot").setup({})
-    end,
-  },
-  {
-    "zbirenbaum/copilot-cmp",
-    config = function()
-      require("copilot_cmp").setup()
+      require('nvim-test').setup()
     end
   },
+  -- Rainbow CSV
+  {
+    'cameron-wags/rainbow_csv.nvim',
+    config = true,
+    ft = {
+      'csv',
+      'tsv',
+      'csv_semicolon',
+      'csv_whitespace',
+      'csv_pipe',
+      'rfc_csv',
+      'rfc_semicolon'
+    },
+    cmd = {
+      'RainbowDelim',
+      'RainbowDelimSimple',
+      'RainbowDelimQuoted',
+      'RainbowMultiDelim'
+    }
+  },
+  -- Merge Conflict Tool
+  { 'akinsho/git-conflict.nvim', version = "*", config = true },
+
+  -- Copilot
+  { 'github/copilot.vim' },
+  -- {
+  --   "zbirenbaum/copilot.lua",
+  --   cmd = "Copilot",
+  --   event = "InsertEnter",
+  --   config = function()
+  --     require("copilot").setup({})
+  --   end,
+  -- },
+  -- {
+  --   "zbirenbaum/copilot-cmp",
+  --   config = function()
+  --     require("copilot_cmp").setup()
+  --   end
+  -- },
 
   {
     "ray-x/lsp_signature.nvim",
@@ -127,6 +188,12 @@ require('lazy').setup({
     },
     config = function()
       require("nvim-tree").setup {
+        git = {
+          ignore = false,
+        },
+        filters = {
+          dotfiles = false,
+        },
         diagnostics = {
           enable = true,
           show_on_dirs = true,
@@ -159,7 +226,7 @@ require('lazy').setup({
 
       -- Useful status updates for LSP
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim', tag = 'legacy', opts = {} },
+      -- { 'j-hui/fidget.nvim', tag = 'legacy', opts = {} },
 
       -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
@@ -183,7 +250,7 @@ require('lazy').setup({
   },
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim',  opts = {} },
+  { 'folke/which-key.nvim',                     opts = {} },
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -270,8 +337,10 @@ require('lazy').setup({
   },
 
   -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim', opts = {} },
+  { 'numToStr/Comment.nvim',                    opts = {} },
 
+  { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make' },
+  { 'nvim-lua/plenary.nvim' },
   -- Fuzzy Finder (files, lsp, etc)
   {
     'nvim-telescope/telescope.nvim',
@@ -296,7 +365,7 @@ require('lazy').setup({
       dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" }
     }
   },
-
+  { 'ThePrimeagen/harpoon' },
   {
     -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
@@ -305,6 +374,8 @@ require('lazy').setup({
     },
     build = ':TSUpdate',
   },
+
+  { "xiyaowong/transparent.nvim" },
 
   --   {
   --   "luukvbaal/statuscol.nvim", config = function()
@@ -417,12 +488,17 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   pattern = '*',
 })
 
+-- Set up Ionide
+-- local on_attach = require("plugins.configs.lspconfig").on_attach
+-- local capabilities = require("plugins.configs.lspconfig").capabilities
+--
 -- [[ Configure Telescope ]]
 -- See `:help telescope` and `:help telescope.setup()`
 require('telescope').setup {
   pickers = {
     find_files = {
       hidden = true,
+      no_ignore = true,
     },
     buffers = {
       sort_lastused = true,
@@ -430,7 +506,8 @@ require('telescope').setup {
     }
   },
   defaults = {
-    file_ignore_patterns = { ".git/", "node_modules/", "cdk.out/" },
+    file_ignore_patterns = { ".git/", "node_modules/", "cdk.out/", "_build/", "_opam/", "dist/", "obj", "bin",
+      "cdk.out/", "coverage/" },
     mappings = {
       i = {
         ['<C-u>'] = false,
@@ -441,7 +518,8 @@ require('telescope').setup {
 }
 
 -- Enable telescope fzf native, if installed
-pcall(require('telescope').load_extension, 'fzf')
+require('telescope').load_extension('fzf')
+require('telescope').load_extension('harpoon')
 
 -- See `:help telescope.builtin`
 vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
@@ -484,7 +562,8 @@ vim.api.nvim_set_keymap(
 vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
     -- Add languages to be installed here that you want installed for treesitter
-    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim',
+    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript',
+      'vimdoc', 'vim',
       'bash' },
 
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
@@ -537,12 +616,12 @@ vim.defer_fn(function()
       },
       swap = {
         enable = true,
-        swap_next = {
-          ['<leader>a'] = '@parameter.inner',
-        },
-        swap_previous = {
-          ['<leader>A'] = '@parameter.inner',
-        },
+        -- swap_next = {
+        --   ['<leader>a'] = '@parameter.inner',
+        -- },
+        -- swap_previous = {
+        --   ['<leader>A'] = '@parameter.inner',
+        -- },
       },
     },
   }
@@ -571,6 +650,13 @@ vim.keymap.set('n', 'g,', function()
   vim.lsp.buf.completion()
 end, { silent = true, noremap = true, desc = 'show completion' })
 
+
+vim.keymap.set('n', '<A-S-f>', function()
+  vim.lsp.buf.format()
+end, { silent = true, noremap = true, desc = 'show completion' })
+
+
+
 -- [[ Configure LSP ]]
 --  This function gets run when an LSP connects to a particular buffer.
 local on_attach = function(_, bufnr)
@@ -587,6 +673,23 @@ local on_attach = function(_, bufnr)
 
     vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
   end
+
+  -- Add the current file to the Harpoon list
+  nmap('<leader>a', require("harpoon.mark").add_file, 'Mark Harpoon file')
+
+  -- Open the Harpoon menu
+  nmap('<leader>h', require("harpoon.ui").toggle_quick_menu, '[H]arpoon')
+
+  -- Navigate to Harpoon-marked files using numbers
+  nmap('<leader>1', function() require("harpoon.ui").nav_file(1) end, '[H]arpoon [1]')
+  nmap('<leader>2', function() require("harpoon.ui").nav_file(2) end, '[H]arpoon [2]')
+  nmap('<leader>3', function() require("harpoon.ui").nav_file(3) end, '[H]arpoon [3]')
+  nmap('<leader>4', function() require("harpoon.ui").nav_file(4) end, '[H]arpoon [4]')
+  nmap('<leader>5', function() require("harpoon.ui").nav_file(5) end, '[H]arpoon [5]')
+  nmap('<leader>6', function() require("harpoon.ui").nav_file(6) end, '[H]arpoon [6]')
+  nmap('<leader>7', function() require("harpoon.ui").nav_file(7) end, '[H]arpoon [7]')
+  nmap('<leader>8', function() require("harpoon.ui").nav_file(8) end, '[H]arpoon [8]')
+  nmap('<leader>9', function() require("harpoon.ui").nav_file(9) end, '[H]arpoon [9]')
 
   nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
   nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
@@ -628,12 +731,12 @@ require('which-key').register {
 }
 
 -- Copilot setup
-require('copilot').setup({
-  suggestion = {
-    enabled = true,
-    auto_trigger = true,
-  }
-})
+-- require('copilot').setup({
+--   suggestion = {
+--     enabled = true,
+--     auto_trigger = true,
+--   }
+-- })
 
 -- mason-lspconfig requires that these setup functions are called in this order
 -- before setting up the servers.
@@ -689,6 +792,12 @@ mason_lspconfig.setup_handlers {
   end,
 }
 
+require('ionide').setup {
+  on_attach = on_attach,
+  capabilities = capabilities,
+}
+
+
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
 local cmp = require 'cmp'
@@ -711,31 +820,67 @@ cmp.setup {
     ['<CR>'] = cmp.mapping.confirm {
       behavior = cmp.ConfirmBehavior.Replace,
       select = true,
-    },
-    ['<Tab>'] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_next_item()
-      elseif luasnip.expand_or_locally_jumpable() then
-        luasnip.expand_or_jump()
-      else
-        fallback()
-      end
-    end, { 'i', 's' }),
-    ['<S-Tab>'] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_prev_item()
-      elseif luasnip.locally_jumpable(-1) then
-        luasnip.jump(-1)
-      else
-        fallback()
-      end
-    end, { 'i', 's' }),
+    }
+    -- ['<Tab>'] = cmp.mapping(function(fallback)
+    --   if cmp.visible() then
+    --     cmp.select_next_item()
+    --   elseif luasnip.expand_or_locally_jumpable() then
+    --     luasnip.expand_or_jump()
+    --   else
+    --     fallback()
+    --   end
+    -- end, { 'i', 's' }),
+    -- ['<S-Tab>'] = cmp.mapping(function(fallback)
+    --   if cmp.visible() then
+    --     cmp.select_prev_item()
+    --   elseif luasnip.locally_jumpable(-1) then
+    --     luasnip.jump(-1)
+    --   else
+    --     fallback()
+    --   end
+    -- end, { 'i', 's' }),
   },
   sources = {
     { name = 'nvim_lsp' },
     { name = 'luasnip' },
     { name = 'copilot' },
   },
+}
+
+-- Set up transparency for theme
+require('onedarkpro').setup({
+  options = {
+    transparency = true
+  }
+})
+
+require('lualine').setup {
+  options = {
+    icons_enabled = true,
+    theme = 'auto',
+    component_separators = { left = '', right = '' },
+    section_separators = { left = '', right = '' },
+    disabled_filetypes = {},
+    always_divide_middle = true,
+  },
+  sections = {
+    lualine_a = { 'mode' },
+    lualine_b = { { 'branch', fmt = function(str) return str:sub(1, 20) end }, 'diff', 'diagnostics' },
+    lualine_c = { { 'filename', path = 1 } },
+    lualine_x = { 'encoding', 'fileformat', 'filetype' },
+    lualine_y = { 'progress' },
+    lualine_z = { 'location' }
+  },
+  inactive_sections = {
+    lualine_a = {},
+    lualine_b = {},
+    lualine_c = { 'filename' },
+    lualine_x = { 'location' },
+    lualine_y = {},
+    lualine_z = {}
+  },
+  tabline = {},
+  extensions = {}
 }
 
 -- The line beneath this is called `modeline`. See `:help modeline`
