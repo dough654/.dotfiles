@@ -3,9 +3,9 @@
 
 path=$(pwd)
 session=$(basename $path)
-echo "Creating tmux session in folder $1"
+echo "Creating tmux session named $session in folder $1"
 
-if tmux attach-session -d -t $session; then
+if tmux attach-session -d -t="$session"; then
 	echo "Attached to existing session"
 else
 	
