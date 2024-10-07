@@ -55,7 +55,7 @@ vim.o.expandtab = true
 vim.o.softtabstop = 4
 vim.o.shiftwidth = 4
 
-vim.o.showtabline = 2
+-- vim.o.showtabline = 2
 vim.g.copilot_assume_mapped = true
 vim.lsp.set_log_level("off")
 vim.diagnostic.config({
@@ -64,6 +64,8 @@ vim.diagnostic.config({
 })
 vim.g["fsharp#show_signature_on_cursor_move"] = 1
 vim.g["fsharp#workspace_mode_peek_deep_level"] = 4
+vim.cmd('set clipboard=unnamedplus')
+vim.cmd('set noequalalways')
 
 -- Install package manager
 --    https://github.com/folke/lazy.nvim
@@ -92,6 +94,7 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: First, some plugins that don't require any configuration
 
+  'prettier/vim-prettier',
   -- Git related plugins
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
@@ -107,8 +110,13 @@ require('lazy').setup({
     end
   },
 
+  { "xiyaowong/transparent.nvim" },
+
   -- Illuminate (highlits the word under the cursor)
   'RRethy/vim-illuminate',
+
+  -- Git blame
+  { 'f-person/git-blame.nvim' },
 
   -- Floating Terminal
   {
@@ -117,6 +125,37 @@ require('lazy').setup({
       vim.api.nvim_create_user_command('FTermOpen', require('FTerm').open, { bang = true })
       vim.api.nvim_create_user_command('FTermClose', require('FTerm').close, { bang = true })
     end
+  },
+  {
+    "rest-nvim/rest.nvim",
+    dependencies = { { "nvim-lua/plenary.nvim" } },
+    config = function()
+      require("rest-nvim").setup({
+        show_statistics = true,
+        --- Get the same options from Packer setup
+      })
+    end
+  },
+  {
+    "stevearc/conform.nvim",
+    event = { "BufReadPre", "BufNewFile" },
+    config = function()
+      local conform = require("conform")
+
+      conform.setup({
+        formatters_by_ft = {
+          go = { { "gofmt" } },
+        },
+      })
+
+      vim.keymap.set({ "n", "v" }, "<leader>l", function()
+        conform.format({
+          lsp_fallback = true,
+          async = false,
+          timeout_ms = 1000,
+        })
+      end, { desc = "Format file or range (in visual mode)" })
+    end,
   },
 
   -- FSharp Ionide
@@ -518,7 +557,7 @@ require('telescope').setup {
 }
 
 -- Enable telescope fzf native, if installed
-require('telescope').load_extension('fzf')
+-- require('telescope').load_extension('fzf')
 require('telescope').load_extension('harpoon')
 
 -- See `:help telescope.builtin`
@@ -563,7 +602,7 @@ vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
     -- Add languages to be installed here that you want installed for treesitter
     ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript',
-      'vimdoc', 'vim',
+      'vimdoc', 'vim', 'http', 'json',
       'bash' },
 
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
@@ -655,7 +694,9 @@ vim.keymap.set('n', '<A-S-f>', function()
   vim.lsp.buf.format()
 end, { silent = true, noremap = true, desc = 'show completion' })
 
-
+-- RestNvim keybinds
+vim.keymap.set('n', '<leader>xr', function() require('rest-nvim').run() end, { desc = 'Run Rest Nvim On Cursor' })
+vim.keymap.set('n', '<leader>xl', function() require('rest-nvim').last() end, { desc = 'Run the last NvimRest command' })
 
 -- [[ Configure LSP ]]
 --  This function gets run when an LSP connects to a particular buffer.
@@ -882,6 +923,8 @@ require('lualine').setup {
   tabline = {},
   extensions = {}
 }
+
+vim.g['fsharp#lsp_codelens'] = 0
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
