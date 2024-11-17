@@ -118,6 +118,9 @@ require('lazy').setup({
   -- Git blame
   { 'f-person/git-blame.nvim' },
 
+  -- Big File
+  { 'pteroctopus/faster.nvim' },
+
   -- Floating Terminal
   {
     'numToStr/FTerm.nvim',
@@ -193,6 +196,20 @@ require('lazy').setup({
 
   -- Copilot
   { 'github/copilot.vim' },
+  {
+    'CopilotC-Nvim/CopilotChat.nvim',
+    branch = "canary",
+    dependencies = {
+      { "zbirenbaum/copilot.lua" }, -- or github/copilot.vim
+      { "nvim-lua/plenary.nvim" },  -- for curl, log wrapper
+    },
+    build = "make tiktoken",        -- Only on MacOS or Linux
+    opts = {
+      debug = true,                 -- Enable debugging
+      -- See Configuration section for rest
+    },
+    -- See Commands section for default commands if you want to lazy load on them
+  },
   -- {
   --   "zbirenbaum/copilot.lua",
   --   cmd = "Copilot",
@@ -601,7 +618,7 @@ vim.api.nvim_set_keymap(
 vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
     -- Add languages to be installed here that you want installed for treesitter
-    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript',
+    ensure_installed = { 'c', 'cpp', 'elixir', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript',
       'vimdoc', 'vim', 'http', 'json',
       'bash' },
 
@@ -697,6 +714,34 @@ end, { silent = true, noremap = true, desc = 'show completion' })
 -- RestNvim keybinds
 vim.keymap.set('n', '<leader>xr', function() require('rest-nvim').run() end, { desc = 'Run Rest Nvim On Cursor' })
 vim.keymap.set('n', '<leader>xl', function() require('rest-nvim').last() end, { desc = 'Run the last NvimRest command' })
+
+vim.keymap.set('v', '<leader>ccq', function()
+  local input = vim.fn.input("Quick Chat: ")
+  if input ~= "" then
+    require("CopilotChat").ask(input, { selection = require("CopilotChat.select").visual })
+  end
+end, { desc = 'Copilot Quick Chat' })
+
+vim.keymap.set({ 'n', 'v' }, '<leader>ccc', function()
+  require("CopilotChat").open()
+end, { desc = 'Copilot Quick Chat' })
+
+vim.keymap.set('n', '<leader>ccq', function()
+  local input = vim.fn.input("Quick Chat: ")
+  if input ~= "" then
+    require("CopilotChat").ask(input, { selection = require("CopilotChat.select").buffer })
+  end
+end, { desc = 'Copilot Quick Chat' })
+
+vim.keymap.set({ 'n', 'v' }, '<leader>cch', function()
+  local actions = require("CopilotChat.actions")
+  require("CopilotChat.integrations.telescope").pick(actions.help_actions())
+end, { desc = 'Copilot Chat - Help actions' })
+
+vim.keymap.set({ 'n', 'v' }, '<leader>ccp', function()
+  local actions = require("CopilotChat.actions")
+  require("CopilotChat.integrations.telescope").pick(actions.prompt_actions())
+end, { desc = 'Copilot Chat - Prompt actions' })
 
 -- [[ Configure LSP ]]
 --  This function gets run when an LSP connects to a particular buffer.
