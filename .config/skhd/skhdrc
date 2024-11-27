@@ -1,0 +1,47 @@
+# Changing window focus
+
+# Changing within a space
+cmd - j : yabai -m window --focus south
+cmd - k : yabai -m window --focus north
+cmd - h : yabai -m window --focus west
+cmd - l : yabai -m window --focus east
+
+# change focus between external display
+cmd - s : yabai -m display --focus west
+cmd - g : yabai -m display --focus east
+
+# Fullscreen
+cmd - f : yabai -m window --toggle zoom-fullscreen
+
+# Modifying the current layout
+
+# Rotate clockwise
+# shift + cmd + r : yabai -m space --rotate 270
+
+# flip along y-axis
+# shift + cmd + y : yabai -m space --mirror y-axis
+
+# flip along x-axis
+# shift + cmd + x : yabai -m space --mirror x-axis
+
+# toggle window float
+shift + cmd - v : yabai -m window --toggle float --grid 4:4:1:1:2:2
+
+# Moving windows around
+shift + cmd - j : yabai -m window --swap south
+shift + cmd - k : yabai -m window --swap north
+shift + cmd - h : yabai -m window --swap west
+shift + cmd - l : yabai -m window --swap east
+
+# Move window to previous and next space
+shift + cmd - p : yabai -m window --space prev;
+shift + cmd - n : yabai -m window --space next;
+
+# move window to space #
+shift + cmd - 1 : yabai -m window --space 1;
+shift + cmd - 2 : yabai -m window --space 2;
+shift + cmd - 3 : yabai -m window --space 3;
+shift + cmd - 4 : yabai -m window --space 4;
+shift + cmd - 5 : yabai -m window --space 5;
+shift + cmd - 6 : yabai -m window --space 6;
+shift + cmd - 7 : yabai -m window --space 7;
