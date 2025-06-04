@@ -1,6 +1,79 @@
 // Place your key bindings in this file to override the defaults
 [
-    // j/k to move between split terminals, h to move back to the editor
+    {
+        "key": "capslock",
+        "command": "-extension.vim_escape",
+        "when": "editorTextFocus && vim.active && !inDebugRepl"
+    },
+    {
+        "key": "space o t",
+        "command": "workbench.action.terminal.toggle",
+        "when": "editorTextFocus && !inDebugRepl && vim.mode == 'Normal'"
+    },
+    {
+        "key": "space tab .",
+        "command": "workbench.action.openRecent",
+        "when": "editorTextFocus && !inDebugRepl && vim.mode == 'Normal'"
+    },
+    {
+        "key": "space p .",
+        "command": "workbench.action.openRecent",
+        "when": "editorTextFocus && !inDebugRepl && vim.mode == 'Normal'"
+    },
+    {
+        "key": "space p a",
+        "command": "workbench.action.files.openFolder",
+        "when": "editorTextFocus && !inDebugRepl && vim.mode == 'Normal'"
+    },
+    // Open copilot chat
+    {
+        "key": "space o c",
+        "command": "workbench.panel.chat.view.copilot.focus",
+        "when": "editorTextFocus && vim.mode == 'Normal'"
+    },
+    // Copilot
+    {
+        "key": "ctrl+w h",
+        "command": "workbench.action.navigateLeft",
+        "when": "workbench.panel.chat.view.copilot.active"
+    },
+    {
+        "key": "ctrl+w l",
+        "command": "workbench.action.navigateRight",
+        "when": "workbench.panel.chat.view.copilot.active"
+    },
+    {
+        "key": "ctrl+w j",
+        "command": "workbench.action.navigateDown",
+        "when": "workbench.panel.chat.view.copilot.active"
+    },
+    {
+        "key": "ctrl+w k",
+        "command": "workbench.action.navigateUp",
+        "when": "workbench.panel.chat.view.copilot.active"
+    },
+    // File Explorer
+    {
+        "key": "ctrl+w h",
+        "command": "workbench.action.navigateLeft",
+        "when": "workbench.explorer.fileView.active"
+    },
+    {
+        "key": "ctrl+w l",
+        "command": "workbench.action.navigateRight",
+        "when": "workbench.explorer.fileView.active"
+    },
+    {
+        "key": "ctrl+w j",
+        "command": "workbench.action.navigateDown",
+        "when": "workbench.explorer.fileView.active"
+    },
+    {
+        "key": "ctrl+w k",
+        "command": "workbench.action.navigateUp",
+        "when": "workbench.explorer.fileView.active"
+    },
+    // Terminal
     {
         "key": "ctrl+w h",
         "command": "workbench.action.navigateLeft",
@@ -48,6 +121,12 @@
     },
     {
         "key": "ctrl+w v",
+        "command": "workbench.action.splitEditorRight",
+        "when": "editorTextFocus && vim.mode == 'Normal'"
+    },
+    // Splits
+    {
+        "key": "ctrl+w v",
         "command": "workbench.action.terminal.split",
         "when": "terminalFocus"
     },
@@ -55,6 +134,21 @@
         "key": "ctrl+w c",
         "command": "workbench.action.terminal.kill",
         "when": "terminalFocus"
+    },
+    {
+        "key": "space space",
+        "command": "workbench.action.quickOpen",
+        "when": "editorTextFocus && !inDebugRepl && vim.mode == 'Normal'"
+    },
+    {
+        "key": "space b b",
+        "command": "workbench.action.showAllEditorsByMostRecentlyUsed",
+        "when": "editorTextFocus && !inDebugRepl && vim.mode == 'Normal'"
+    },
+    {
+        "key": "space b l",
+        "command": "workbench.action.quickOpenPreviousRecentlyUsedEditorInGroup",
+        "when": "editorTextFocus && !inDebugRepl && vim.mode == 'Normal'"
     },
     {
         "key": "cmd+enter",
@@ -83,6 +177,30 @@
     {
         "key": "ctrl+e",
         "command": "workbench.action.toggleSidebarVisibility"
+    },
+    {
+        "key": "c f",
+        "command": "explorer.newFile",
+        "when": "explorerViewletVisible && filesExplorerFocus"
+    },
+    {
+        "key": "c d",
+        "command": "explorer.newFolder",
+        "when": "explorerViewletVisible && filesExplorerFocus"
+    },
+    {
+        "key": "y",
+        "command": "filesExplorer.copy",
+        "when": "explorerViewletVisible && filesExplorerFocus"
+    },
+    {
+        "key": "p",
+        "command": "filesExplorer.paste",
+        "when": "explorerViewletVisible && filesExplorerFocus"
+    },
+    {
+        "key": "d",
+        "command": "deleteFile",
+        "when": "explorerViewletVisible && filesExplorerFocus"
     }
-    
 ]
