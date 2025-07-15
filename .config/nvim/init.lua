@@ -365,6 +365,7 @@ require("lazy").setup({
 				{ "<leader>s", group = "[S]earch" },
 				{ "<leader>t", group = "[T]oggle" },
 				{ "<leader>h", group = "Git [H]unk", mode = { "n", "v" } },
+				{ "<leader>b", group = "[B]uffer" },
 			},
 		},
 	},
@@ -888,7 +889,7 @@ require("lazy").setup({
 				-- <c-k>: Toggle signature help
 				--
 				-- See :h blink-cmp-config-keymap for defining your own keymap
-				preset = "default",
+				preset = "enter",
 
 				-- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
 				--    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -1234,6 +1235,11 @@ end, { desc = "[H]arpoon [9]" })
 -- Nvim Tree toggle
 
 vim.api.nvim_set_keymap("n", "<space>t", ":NvimTreeFindFileToggle<CR>", { noremap = true })
+
+-- Buffer navigation keymaps (Doom Emacs style)
+vim.keymap.set("n", "<leader>bl", "<cmd>b#<cr>", { desc = "[B]uffer [L]ast (return to previous)" })
+vim.keymap.set("n", "<leader>bn", "<cmd>bnext<cr>", { desc = "[B]uffer [N]ext" })
+vim.keymap.set("n", "<leader>bp", "<cmd>bprevious<cr>", { desc = "[B]uffer [P]revious" })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
