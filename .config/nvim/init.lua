@@ -141,6 +141,10 @@ vim.o.timeoutlen = 300
 vim.o.splitright = true
 vim.o.splitbelow = true
 
+-- Prevent Neovim from auto-equalizing splits when the terminal window resizes
+-- (e.g., when toggling fullscreen in Hyprland or resizing the window)
+vim.o.equalalways = false
+
 -- Sets how neovim will display certain whitespace characters in the editor.
 --  See `:help 'list'`
 --  and `:help 'listchars'`
@@ -191,6 +195,9 @@ vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Open float
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 
+-- Fast 'jk' to exit terminal mode without conflicting with CLI apps like Claude
+vim.keymap.set("t", "jk", "<C-\\><C-n>", { desc = "Exit terminal mode (jk)" })
+
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
 -- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
@@ -212,6 +219,11 @@ vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper win
 -- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
 -- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
 
+-- Make paste in visual mode not replace the clipboard with the deleted text
+-- This uses the "black hole register" (_) to delete without affecting any register
+vim.keymap.set("x", "p", '"_dP', { desc = "Paste without yanking replaced text" })
+vim.keymap.set("x", "P", '"_dp', { desc = "Paste without yanking replaced text" })
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -223,6 +235,14 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),
 	callback = function()
 		vim.hl.on_yank()
+	end,
+})
+
+-- Equalize window sizes when terminal resizes (e.g., fullscreen toggle)
+vim.api.nvim_create_autocmd("VimResized", {
+	desc = "Equalize window sizes on terminal resize",
+	callback = function()
+		vim.cmd("wincmd =")
 	end,
 })
 
@@ -1084,12 +1104,33 @@ require("lazy").setup({
 		},
 	},
 	-- Copilot
-	{ "github/copilot.vim" },
+	{
+		"zbirenbaum/copilot.lua",
+		cmd = "Copilot",
+		event = "InsertEnter",
+		config = function()
+			require("copilot").setup({
+				suggestion = {
+					enabled = true,
+					auto_trigger = true,
+					keymap = {
+						accept = "<S-Tab>", -- Accept with Shift+Tab (deliberate, won't accidentally trigger)
+						accept_word = false,
+						accept_line = false,
+						next = "<M-]>",
+						prev = "<M-[>",
+						dismiss = "<C-]>",
+					},
+				},
+				panel = { enabled = false },
+			})
+		end,
+	},
 	{
 		"CopilotC-Nvim/CopilotChat.nvim",
 		branch = "main",
 		dependencies = {
-			{ "zbirenbaum/copilot.lua" }, -- or github/copilot.vim
+			{ "zbirenbaum/copilot.lua" },
 			{ "nvim-lua/plenary.nvim", branch = "master" }, -- for curl, log wrapper
 		},
 		build = "make tiktoken", -- Only on MacOS or Linux
@@ -1131,6 +1172,26 @@ require("lazy").setup({
 	},
 	-- Harpoon
 	{ "ThePrimeagen/harpoon" },
+
+	-- Terminal toggle
+	{
+		"akinsho/toggleterm.nvim",
+		version = "*",
+		opts = {
+			size = function(term)
+				if term.direction == "horizontal" then
+					return vim.o.lines * 0.3
+				elseif term.direction == "vertical" then
+					return vim.o.columns * 0.4
+				end
+			end,
+			open_mapping = "<leader>tt",
+			direction = "horizontal",
+			shade_terminals = false,
+			persist_size = true,
+			persist_mode = true,
+		},
+	},
 
 	-- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
 	-- init.lua. If you want these files, they are in the repository, so you can just download them and
@@ -1233,13 +1294,13 @@ vim.keymap.set("n", "<leader>9", function()
 end, { desc = "[H]arpoon [9]" })
 
 -- Nvim Tree toggle
-
-vim.api.nvim_set_keymap("n", "<space>t", ":NvimTreeFindFileToggle<CR>", { noremap = true })
+vim.keymap.set("n", "<leader>ot", "<cmd>NvimTreeFindFileToggle<CR>", { desc = "[O]pen [T]ree" })
 
 -- Buffer navigation keymaps (Doom Emacs style)
 vim.keymap.set("n", "<leader>bl", "<cmd>b#<cr>", { desc = "[B]uffer [L]ast (return to previous)" })
 vim.keymap.set("n", "<leader>bn", "<cmd>bnext<cr>", { desc = "[B]uffer [N]ext" })
 vim.keymap.set("n", "<leader>bp", "<cmd>bprevious<cr>", { desc = "[B]uffer [P]revious" })
+
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
