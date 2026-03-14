@@ -84,6 +84,15 @@ I hope you enjoy your Neovim journey,
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
+-- Compatibility shim: restore vim.lsp.util._str_utfindex_enc removed in Neovim 0.11.
+-- Telescope (and possibly other plugins) call this internal function. The new public
+-- API is vim.str_utfindex(str, encoding, col) -- note the swapped argument order.
+if vim.lsp.util._str_utfindex_enc == nil then
+	vim.lsp.util._str_utfindex_enc = function(str, col, encoding)
+		return vim.str_utfindex(str, encoding, col)
+	end
+end
+
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
@@ -170,6 +179,9 @@ vim.o.scrolloff = 10
 -- See `:help 'confirm'`
 vim.o.confirm = true
 
+-- Allow project-local .nvim.lua config files (e.g. for per-repo LSP settings)
+vim.o.exrc = true
+
 -- Set default indentation to spaces
 vim.o.expandtab = true
 vim.o.tabstop = 2
@@ -235,6 +247,27 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),
 	callback = function()
 		vim.hl.on_yank()
+	end,
+})
+
+-- Force-stop LSP clients on exit to prevent neovim hanging while gopls
+-- finishes background work (common in large monorepos).
+-- VimLeavePre: signal all clients to stop hard (force=true skips graceful drain).
+vim.api.nvim_create_autocmd("VimLeavePre", {
+	desc = "Force-stop LSP clients to prevent hang on exit",
+	callback = function()
+		for _, client in ipairs(vim.lsp.get_clients()) do
+			client.stop(true)
+		end
+	end,
+})
+-- VimLeave: fires after VimLeavePre and after swap files are written.
+-- At this point Neovim would normally wait for LSP processes to exit;
+-- hard-exit with os.exit() to skip that wait entirely.
+vim.api.nvim_create_autocmd("VimLeave", {
+	desc = "Hard-exit to avoid waiting on LSP process shutdown",
+	callback = function()
+		os.exit(0)
 	end,
 })
 
@@ -722,7 +755,29 @@ require("lazy").setup({
 			--        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
 			local servers = {
 				-- clangd = {},
-				gopls = {},
+				gopls = {
+					-- Walk up from the opened file to find go.work or go.mod
+					root_dir = require("lspconfig.util").root_pattern("go.work", "go.mod", ".git"),
+					settings = {
+						gopls = {
+							-- Don't expand workspace to entire module root automatically
+							expandWorkspaceToModule = false,
+							-- Exclude generated/mock code from workspace analysis
+							directoryFilters = {
+								"-vendor",
+								"-node_modules",
+								"-mocks",
+							},
+							-- Disable expensive analyses that aren't essential
+							analyses = {
+								unusedparams = false,
+								shadow = false,
+							},
+							-- Disable staticcheck (very expensive on large codebases)
+							staticcheck = false,
+						},
+					},
+				},
 				-- pyright = {},
 				rust_analyzer = {},
 				-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
@@ -1158,14 +1213,9 @@ require("lazy").setup({
 					dotfiles = false,
 				},
 				diagnostics = {
-					enable = true,
-					show_on_dirs = true,
-					icons = {
-						hint = "",
-						info = "",
-						warning = "",
-						error = "",
-					},
+					-- Disabled: querying LSP diagnostics for every dir node in a
+					-- 465-package monorepo hammers gopls and slows everything down
+					enable = false,
 				},
 			})
 		end,
