@@ -1,0 +1,170 @@
+config-version = 2
+
+# ── Startup ──────────────────────────────────────────────────────────────────
+after-startup-command = [
+    'exec-and-forget open -a Ghostty',
+    'exec-and-forget open -a "Google Chrome"',
+    'exec-and-forget open -a Slack',
+    'exec-and-forget open -a "Microsoft Teams"',
+    'exec-and-forget open -a Mail',
+    'exec-and-forget open -a Calendar',
+    'exec-and-forget sketchybar',
+    'exec-and-forget borders active_color="glow(0xff00ffaa)" inactive_color=0xff313244 width=6.0',
+]
+
+start-at-login = true
+automatically-unhide-macos-hidden-apps = true
+
+# ── Workspaces ────────────────────────────────────────────────────────────────
+# W=web, D=dev, T=term, C=chat, M=media
+persistent-workspaces = ["D", "W", "M", "E", "S"]
+
+# ── Layout defaults ───────────────────────────────────────────────────────────
+accordion-padding = 30
+default-root-container-layout = 'tiles'
+default-root-container-orientation = 'auto'
+
+# ── Tree normalizations ───────────────────────────────────────────────────────
+enable-normalization-flatten-containers = true
+enable-normalization-opposite-orientation-for-nested-containers = true
+
+# ── Mouse follows focus ───────────────────────────────────────────────────────
+on-focused-monitor-changed = []
+on-focus-changed = []
+
+# ── Sketchybar integration ────────────────────────────────────────────────────
+exec-on-workspace-change = ['/bin/bash', '-c',
+    'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE'
+]
+
+# ── Key mapping ───────────────────────────────────────────────────────────────
+[key-mapping]
+    preset = 'qwerty'
+
+# ── Gaps (Hyprland-style breathing room) ─────────────────────────────────────
+[gaps]
+    inner.horizontal = 8
+    inner.vertical   = 8
+    outer.left       = 8
+    outer.bottom     = 8
+    outer.top        = 16
+    outer.right      = 8
+
+# ── Window rules ──────────────────────────────────────────────────────────────
+[[on-window-detected]]
+    if.app-id = 'com.mitchellh.ghostty'
+    run = 'move-node-to-workspace D'
+
+[[on-window-detected]]
+    if.app-id = 'com.google.Chrome'
+    run = 'move-node-to-workspace W'
+
+[[on-window-detected]]
+    if.app-id = 'com.apple.Safari'
+    run = 'move-node-to-workspace D'
+
+[[on-window-detected]]
+    if.app-id = 'com.apple.systempreferences'
+    run = 'layout floating'
+
+[[on-window-detected]]
+    if.app-id = 'com.apple.calculator'
+    run = 'layout floating'
+
+[[on-window-detected]]
+    if.app-id = 'com.tinyspeck.slackmacgap'
+    run = 'move-node-to-workspace M'
+
+[[on-window-detected]]
+    if.app-id = 'com.microsoft.teams2'
+    run = 'move-node-to-workspace M'
+
+[[on-window-detected]]
+    if.app-id = 'com.apple.mail'
+    run = 'move-node-to-workspace E'
+
+[[on-window-detected]]
+    if.app-id = 'com.apple.iCal'
+    run = 'move-node-to-workspace E'
+
+# ── Main keybindings ──────────────────────────────────────────────────────────
+[mode.main.binding]
+    # Focus (vim-style)
+    alt-h = 'focus left'
+    alt-j = 'focus down'
+    alt-k = 'focus up'
+    alt-l = 'focus right'
+
+    # Move windows (vim-style)
+    alt-shift-h = 'move left'
+    alt-shift-j = 'move down'
+    alt-shift-k = 'move up'
+    alt-shift-l = 'move right'
+
+    # Resize
+    alt-minus = 'resize smart -50'
+    alt-equal = 'resize smart +50'
+
+    # Layout toggles
+    alt-slash       = 'layout tiles horizontal vertical'
+    alt-comma       = 'layout accordion horizontal vertical'
+    alt-shift-space = 'layout floating tiling'
+    alt-f           = 'macos-native-fullscreen'
+
+    # Workspace switching (letter-based)
+    alt-e = 'workspace E'
+    alt-d = 'workspace D'
+    alt-w = 'workspace W'
+    alt-m = 'workspace M'
+    alt-s = 'workspace S'
+
+
+
+    # Move window to workspace
+    alt-shift-e = 'move-node-to-workspace E'
+    alt-shift-d = 'move-node-to-workspace D'
+    alt-shift-w = 'move-node-to-workspace W'
+    alt-shift-m = 'move-node-to-workspace M'
+    alt-shift-s = 'move-node-to-workspace S'
+
+
+
+    # Workspace navigation
+    alt-tab       = 'workspace-back-and-forth'
+    alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
+
+    # Launch Ghostty
+    alt-q     = 'close'
+    alt-enter = 'exec-and-forget open -n /Applications/Ghostty.app'
+
+    # Mode switching
+    alt-shift-semicolon = 'mode service'
+    alt-r               = 'mode resize'
+
+    # Disable accidental macOS app hide shortcuts
+    cmd-h     = []
+    cmd-alt-h = []
+
+# ── Service mode ──────────────────────────────────────────────────────────────
+[mode.service.binding]
+    esc       = ['reload-config', 'mode main']
+    r         = ['flatten-workspace-tree', 'mode main']
+    f         = ['layout floating tiling', 'mode main']
+    backspace = ['close-all-windows-but-current', 'mode main']
+
+    # Join windows into a container
+    alt-shift-h = ['join-with left',  'mode main']
+    alt-shift-j = ['join-with down',  'mode main']
+    alt-shift-k = ['join-with up',    'mode main']
+    alt-shift-l = ['join-with right', 'mode main']
+
+# ── Resize mode ───────────────────────────────────────────────────────────────
+[mode.resize.binding]
+    h     = 'resize width -50'
+    j     = 'resize height +50'
+    k     = 'resize height -50'
+    l     = 'resize width +50'
+    minus = 'resize smart -50'
+    equal = 'resize smart +50'
+    enter = 'mode main'
+    esc   = 'mode main'
