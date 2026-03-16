@@ -37,6 +37,14 @@ exec-on-workspace-change = ['/bin/bash', '-c',
     'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE'
 ]
 
+# ── Monitor assignment ────────────────────────────────────────────────────────
+[workspace-to-monitor-force-assignment]
+    D = 'main'
+    W = 'main'
+    S = 'main'
+    M = 'secondary'
+    E = 'secondary'
+
 # ── Key mapping ───────────────────────────────────────────────────────────────
 [key-mapping]
     preset = 'qwerty'
