@@ -1198,26 +1198,42 @@ require("lazy").setup({
 	-- File Tree
 	"nvim-tree/nvim-web-devicons",
 	{
-		"nvim-tree/nvim-tree.lua",
-		version = "*",
+		"nvim-neo-tree/neo-tree.nvim",
+		branch = "v3.x",
 		lazy = false,
 		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"MunifTanjim/nui.nvim",
 			"nvim-tree/nvim-web-devicons",
 		},
+		opts = {
+			enable_git_status = true,
+			enable_diagnostics = false, -- Disabled: querying LSP diagnostics for every dir node in a
+			-- 465-package monorepo hammers gopls and slows everything down
+			filesystem = {
+				filtered_items = {
+					hide_dotfiles = false,
+					hide_gitignored = false,
+				},
+				follow_current_file = {
+					enabled = true,
+				},
+				use_libuv_file_watcher = true,
+			},
+			window = {
+				width = 30,
+				mappings = {
+					["<C-e>"] = "close_window",
+				},
+			},
+		},
+	},
+	{
+		"rogovski/neotree-whitelist.nvim",
+		lazy = false,
+		dependencies = { "nvim-neo-tree/neo-tree.nvim" },
 		config = function()
-			require("nvim-tree").setup({
-				git = {
-					ignore = false,
-				},
-				filters = {
-					dotfiles = false,
-				},
-				diagnostics = {
-					-- Disabled: querying LSP diagnostics for every dir node in a
-					-- 465-package monorepo hammers gopls and slows everything down
-					enable = false,
-				},
-			})
+			require("neotree-whitelist").setup()
 		end,
 	},
 	-- Harpoon
@@ -1235,7 +1251,7 @@ require("lazy").setup({
 					return vim.o.columns * 0.4
 				end
 			end,
-			open_mapping = "<leader>tt",
+			open_mapping = false, -- Don't map in all modes (causes insert-mode delay on <Space>)
 			direction = "horizontal",
 			shade_terminals = false,
 			persist_size = true,
@@ -1343,8 +1359,12 @@ vim.keymap.set("n", "<leader>9", function()
 	require("harpoon.ui").nav_file(9)
 end, { desc = "[H]arpoon [9]" })
 
--- Nvim Tree toggle
-vim.keymap.set("n", "<leader>ot", "<cmd>NvimTreeFindFileToggle<CR>", { desc = "[O]pen [T]ree" })
+-- Neo-tree toggle (reveal current file)
+vim.keymap.set("n", "<leader>ot", "<cmd>Neotree reveal toggle<CR>", { desc = "[O]pen [T]ree" })
+vim.keymap.set("n", "<C-e>", "<cmd>Neotree toggle<CR>", { desc = "Toggle Neo-tree" })
+
+-- Toggle terminal (normal mode only to avoid insert-mode delay)
+vim.keymap.set("n", "<leader>tt", "<cmd>ToggleTerm<cr>", { desc = "[T]oggle [T]erminal" })
 
 -- Buffer navigation keymaps (Doom Emacs style)
 vim.keymap.set("n", "<leader>bl", "<cmd>b#<cr>", { desc = "[B]uffer [L]ast (return to previous)" })
