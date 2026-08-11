@@ -422,6 +422,65 @@ require("lazy").setup({
 			},
 		},
 	},
+	{
+		"sudo-tee/opencode.nvim",
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			{
+				"MeanderingProgrammer/render-markdown.nvim",
+				opts = {
+					anti_conceal = { enabled = false },
+					file_types = { "markdown", "opencode_output" },
+				},
+				ft = { "markdown", "opencode_output" },
+			},
+			"saghen/blink.cmp",
+			"folke/snacks.nvim",
+		},
+		config = function()
+			require("opencode").setup({
+				default_global_keymaps = true,
+				keymap_prefix = "<leader>o",
+				default_mode = "build",
+				keymap = {
+					input_window = {
+						["<M-m>"] = false,
+						["<M-r>"] = false,
+						["<M-v>"] = false,
+						["<leader>om"] = { "switch_mode", mode = { "n" } },
+						["<leader>oe"] = { "cycle_variant", mode = { "n" } },
+						["<leader>oC"] = { "paste_image", mode = { "n" } },
+					},
+					output_window = {
+						["<M-r>"] = false,
+						["<leader>oe"] = { "cycle_variant", mode = { "n" } },
+					},
+				},
+			})
+		end,
+	},
+
+	{
+		"sindrets/diffview.nvim",
+		dependencies = { "nvim-lua/plenary.nvim" },
+		keys = {
+			{ "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Open diff view" },
+			{ "<leader>gh", "<cmd>DiffviewFileHistory %<cr>", desc = "File history" },
+			{ "<leader>gH", "<cmd>DiffviewFileHistory<cr>", desc = "Branch history" },
+		},
+		opts = {
+			keymaps = {
+				view = {
+					{ "n", "<C-j>", "]c", { desc = "Next hunk" } },
+					{ "n", "<C-k>", "[c", { desc = "Prev hunk" } },
+					{ "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close diff view" } },
+				},
+				file_panel = {
+					{ "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close diff view" } },
+				},
+			},
+		},
+	},
 
 	-- NOTE: Plugins can specify dependencies.
 	--
@@ -1075,33 +1134,23 @@ require("lazy").setup({
 	{ -- Highlight, edit, and navigate code
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
-		main = "nvim-treesitter.configs", -- Sets main module to use for opts
 		-- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-		opts = {
-			ensure_installed = {
-				"bash",
-				"c",
-				"diff",
-				"html",
-				"lua",
-				"luadoc",
-				"markdown",
-				"markdown_inline",
-				"query",
-				"vim",
-				"vimdoc",
-			},
-			-- Autoinstall languages that are not installed
-			auto_install = true,
-			highlight = {
-				enable = true,
-				-- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-				--  If you are experiencing weird indenting issues, add the language to
-				--  the list of additional_vim_regex_highlighting and disabled languages for indent.
-				additional_vim_regex_highlighting = { "ruby" },
-			},
-			indent = { enable = true, disable = { "ruby" } },
-		},
+		config = function()
+			require("nvim-treesitter").setup()
+			-- Ensure parsers are installed
+			vim.api.nvim_create_autocmd("VimEnter", {
+				callback = function()
+					local ensure_installed = {
+						"bash", "c", "diff", "html", "lua", "luadoc",
+						"markdown", "markdown_inline", "query", "vim", "vimdoc",
+					}
+					for _, lang in ipairs(ensure_installed) do
+						pcall(function() vim.treesitter.language.add(lang) end)
+					end
+				end,
+				once = true,
+			})
+		end,
 		-- There are additional nvim-treesitter modules that you can use to interact
 		-- with nvim-treesitter. You should go explore a few and see what interests you:
 		--
@@ -1370,7 +1419,6 @@ vim.keymap.set("n", "<leader>tt", "<cmd>ToggleTerm<cr>", { desc = "[T]oggle [T]e
 vim.keymap.set("n", "<leader>bl", "<cmd>b#<cr>", { desc = "[B]uffer [L]ast (return to previous)" })
 vim.keymap.set("n", "<leader>bn", "<cmd>bnext<cr>", { desc = "[B]uffer [N]ext" })
 vim.keymap.set("n", "<leader>bp", "<cmd>bprevious<cr>", { desc = "[B]uffer [P]revious" })
-
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
